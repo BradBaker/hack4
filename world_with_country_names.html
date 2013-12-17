@@ -18,9 +18,9 @@ body {
 
 .graticule {
   fill: none;
-  stroke: #777;
-  stroke-width: .5px;
-  stroke-opacity: .5;
+  stroke: none
+  stroke-width: 0px;
+  stroke-opacity: 0;
 }
 
 .land {
@@ -44,6 +44,9 @@ body {
     stroke: blue;
   fill: none;
 }
+.brush{
+  opacity: 0.5;
+}
 
 </style>
 <body>
@@ -52,14 +55,9 @@ body {
 <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script>
 
-d3.selection.prototype.moveToFront = function() {
-  return this.each(function(){
-    this.parentNode.appendChild(this);
-  });
-};
-
+a = []
 var width = 960,
-    height = 500;
+    height = 400;
 
 var projection = d3.geo.mercator()
     .center([0, 15])
@@ -153,9 +151,9 @@ d3.json("/map_jsons/world-110m.json", function(error, world) {
              .attr("fill","grey");
 
   }) ;          
-
+   full_data_set = []
    d3.tsv("/data/brad_real_friend_data.tsv",function(error,data) {
-      
+      full_data_set = data
 
 
       var friends_points = svg.append("g")
@@ -170,56 +168,175 @@ d3.json("/map_jsons/world-110m.json", function(error, world) {
                   ;
          friends_points.append("circle")
                 .attr("r",1)
-                .style("fill",function(d) {console.log(d.season);return colorScale(d.season)})
+                .style("fill",function(d) {return colorScale(d.season)})
                 .text(function(d) { return d.friend_first_name + " " + d.friend_last_name + "\n" + "airbnb.com/users/show/" + d.user_id  })
             
 
- 
+        d3.tsv("/data/brad_real_data.tsv",function(error,data) {
+        full_data_set = full_data_set.concat(data)
+          personal_points = svg.append("g")
+                      .attr("class","personal_points")
+                      .selectAll("g")
+                      .data(data)
+                      .enter()         
+                      .append("g")
+                      .attr("transform", function(d) { return "translate(" + projection([d.lng,d.lat]) + ")"; })
+                      .append("circle")
+                      .attr("r",1)
+                      .style("fill",function(d) {return colorScale(d.season)});
+
+
+          var chart = d3.select("body").append("svg")
+              .attr("width", width)
+              .attr("height", 250)
+              .attr("class","season_chart")
+
+    var parseDate = d3.time.format("%Y-%m-%d").parse;
+
+          
+          var x = d3.time.scale()
+              .domain(d3.extent(full_data_set, function(d) { return parseDate(d.start_date); }))
+              .range([40, width-40]);
+
+          
+          
+          var hist = {};
+          full_data_set.map( function (d) { if (d.start_date in hist) hist[d.start_date] ++; else hist[d.start_date] = 1; })
+        
+          final_hist = []
+          for (var key in hist) {
+            final_hist.push({"date": key,"trips":hist[key]})
+          }
+          var my_hist = {};
+          data.map( function (d) { if (d.start_date in my_hist) my_hist[d.start_date] ++; else my_hist[d.start_date] = 1; })
+        
+          my_final_hist = []
+          for (var key in my_hist) {
+            my_final_hist.push({"date": key,"trips":my_hist[key]})
+          }
+        
+
+
+          var y = d3.scale.linear()
+                          .domain([0,
+                                  d3.max(final_hist,function(d) {return(d.trips)}),])
+                          .range([180,20]);
+
+          var y2 = d3.scale.linear()
+                          .domain([0,
+                                  d3.max(my_final_hist,function(d) {return(d.trips)}),])
+                          .range([180,80]);
+
+          var bins = final_hist.length;
+
+          var bar = chart.append("g")
+                          .attr("class","all_trips")
+                          .selectAll("g")
+                          .data(final_hist)
+                          .enter()
+                          .append("g")
+                          .attr("class","all trips")
+                          .attr("transform", function(d, i) { return "translate("+x(parseDate(d.date)) + 
+                           "," + 
+                           y(d.trips) + 
+                           ")"; })
+                          .append("rect")
+                          .attr("width",(width-80)/(bins*2) )
+                          .attr("height",function(d){return 180 - y(d.trips)})
+                          .style("fill","blue")
+                          .style("opacity",0.5)
+                          ;
+                           
+            var my_bar = chart.append("g")
+                          .attr("class","my_trips")
+                          .selectAll("g")
+                          .data(my_final_hist)
+                          .enter()
+                          .append("g")
+                          //.attr("class","my_trips")
+                          .attr("transform", function(d, i) { return "translate("+x(parseDate(d.date)) + 
+                           "," + 
+                           y2(d.trips) + 
+                           ")"; })
+                          .append("circle")
+                          .attr("r",10)
+                          .style("fill","pink")
+
+                          ;    
+   var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom");
+
+    chart.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + 180 + ")")
+      .call(xAxis);
+
+    var y1Axis = d3.svg.axis()
+      .scale(y)
+      .orient("left");
+
+    chart.append("g")
+      .attr("class", "y1 axis")
+      .attr("transform", "translate(45," + 0 + ")")
+      .call(y1Axis);
+
+    var y2Axis = d3.svg.axis()
+      .scale(y2)
+      .orient("right");
+
+    chart.append("g")
+      .attr("class", "y2 axis")
+      .attr("transform", "translate("  + 900  +",0)")
+      .call(y2Axis);
+var brush = d3.svg.brush()
+    .x(x)
+    .extent([100,200])
+    .on("brush",console.log("you brushed"))
+    .on("brushend",console.log("you stopped brushing"))
+;
+
+var gBrush = chart.append("g")
+    .attr("class", "brush")
+    .call(brush)
+    .call(brush.event);
+
+gBrush.selectAll("rect")
+    .attr("height", 180);
+         });
+
 
    });
 
-   d3.tsv("/data/brad_real_data.tsv",function(error,data) {
-      personal_points = svg.append("g")
-                  .attr("class","personal_points")
-                  .selectAll("g")
-                  .data(data)
-                  .enter()         
-                  .append("g")
-                  .attr("transform", function(d) { return "translate(" + projection([d.lng,d.lat]) + ")"; })
-                  .append("circle")
-                  .attr("r",1)
-                  .style("fill",function(d) {return colorScale(d.season)});
-
-   });
 
 
-   d3.tsv("/data/brad_wishlist_data.tsv",function(error,data) {
-      personal_points = svg.append("g")
-                  .attr("class","personal_wishlists")
-                  .selectAll("g")
-                  .data(data)
-                  .enter()         
-                  .append("g")
-                  .attr("transform", function(d) { return "translate(" + projection([d.lng,d.lat]) + ")"; })
-                  .append("circle")
-                  .attr("r",0)
-                  .style("fill",function(d) {return "green"});
-   });
+   // d3.tsv("/data/brad_wishlist_data.tsv",function(error,data) {
+   //    personal_points = svg.append("g")
+   //                .attr("class","personal_wishlists")
+   //                .selectAll("g")
+   //                .data(data)
+   //                .enter()         
+   //                .append("g")
+   //                .attr("transform", function(d) { return "translate(" + projection([d.lng,d.lat]) + ")"; })
+   //                .append("circle")
+   //                .attr("r",0)
+   //                .style("fill",function(d) {return "green"});
+   // });
 
 
 
-   d3.tsv("/data/brad_friend_wishlist_data.tsv",function(error,data) {
-      personal_points = svg.append("g")
-                  .attr("class","friends_wishlists")
-                  .selectAll("g")
-                  .data(data)
-                  .enter()         
-                  .append("g")
-                  .attr("transform", function(d) { return "translate(" + projection([d.lng,d.lat]) + ")"; })
-                  .append("circle")
-                  .attr("r",0)
-                  .style("fill",function(d) {return "yellow"});
-   });
+   // d3.tsv("/data/brad_friend_wishlist_data.tsv",function(error,data) {
+   //    personal_points = svg.append("g")
+   //                .attr("class","friends_wishlists")
+   //                .selectAll("g")
+   //                .data(data)
+   //                .enter()         
+   //                .append("g")
+   //                .attr("transform", function(d) { return "translate(" + projection([d.lng,d.lat]) + ")"; })
+   //                .append("circle")
+   //                .attr("r",0)
+   //                .style("fill",function(d) {return "yellow"});
+   // });
 
 
 
