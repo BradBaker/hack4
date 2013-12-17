@@ -2,6 +2,11 @@ body {
   background: #fcfcfa;
 }
 
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
 .stroke {
   fill: none;
   stroke: #000;
@@ -26,10 +31,7 @@ body {
 .boundary {
   fill: none;
   stroke: #fff;
-  stroke-width: .5px;
-}
-.countryList{
-  z-index: -100;
+  stroke-width: .1px;
 }
 .route{
     stroke-width: 1px;
