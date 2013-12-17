@@ -37,7 +37,7 @@
         .data(countries)
       .enter()
         .insert("path")
-        .attr("class","country")
+        .attr("class", "country")
         .attr("d", path)
         .attr("countryName", function(d) { return d.name; })
         .attr("fill", "gray");
@@ -54,7 +54,7 @@
         });
       });
 
-      // Plot listings I've traveled to.
+      // Plot the listings I've traveled to.
       var my_destinations_points = svg.append("g")
           .attr("class", "my_trips")
           .selectAll("g")
@@ -64,7 +64,7 @@
             .attr("transform", function(d) { return "translate(" + projection([listings[d].lng, listings[d].lat]) + ")"; })
           .append("circle")
             .attr("r", 3)
-            .style("fill", "#00b0ff")
+            .style("fill", "#00b0ff") // Airbnb blue.
             .style("z-index", 10);
 
       // LineStrings for segments.
@@ -75,7 +75,6 @@
           var coordinates = [[]];
           var lat1, lng1, lat2, lng2;
           d.forEach(function(d2,i) {
-
             lat2 = listings[d2].lat;
             lng2 = listings[d2].lng;
             if(i > 0) { coordinates.push(x); };
