@@ -1,0 +1,9 @@
+user_id	first_name	last_name	is_friend	friend_id	friend_first_name	friend_last_name	friend_country	friend_market	collection_id	collection_name	collection_status	hosting_id	country	market	city	lat	lng	room_type
+4050438	Brad	Cook	0	4050438	Brad	Cook	US	San Francisco	12020018	ATL	NULL	795673	ES	Costa Brava Nord	Cadaqués	42.285515	3.29041	Entire home/apt
+4050438	Brad	Cook	0	4050438	Brad	Cook	US	San Francisco	19674254	New Years	NULL	1566145	MX	Playa del Carmen	Playa del Carmen	20.62943	-87.0732	Entire home/apt
+4050438	Brad	Cook	0	4050438	Brad	Cook	US	San Francisco	19674254	New Years	NULL	839403	MX	Playa del Carmen	Playa del Carmen	20.634716	-87.076996	Entire home/apt
+4050438	Brad	Cook	0	4050438	Brad	Cook	US	San Francisco	12020018	ATL	NULL	265897	US	Atlanta	Atlanta	33.761467	-84.38032	Entire home/apt
+4050438	Brad	Cook	0	4050438	Brad	Cook	US	San Francisco	8573426	Mobile Starred Listings	NULL	265897	US	Atlanta	Atlanta	33.761467	-84.38032	Entire home/apt
+4050438	Brad	Cook	0	4050438	Brad	Cook	US	San Francisco	19674254	New Years	NULL	731317	MX	Playa del Carmen	Tulum	20.211939	-87.46293	Private room
+4050438	Brad	Cook	0	4050438	Brad	Cook	US	San Francisco	12020018	ATL	NULL	884894	US	Other (Domestic)	Winthrop	44.340027	-69.943214	Private room
+4050438	Brad	Cook	0	4050438	Brad	Cook	US	San Francisco	6977320	Vacation Places	NULL	1346078	US	Park City	Park City	40.670918	-111.49734	Private room

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  background: #fcfcfa;
+}
+
+.stroke {
+  fill: none;
+  stroke: #000;
+  stroke-width: 3px;
+}
+
+.fill {
+  fill: #b4cdcd;
+}
+
+.graticule {
+  fill: none;
+  stroke: #777;
+  stroke-width: .5px;
+  stroke-opacity: .5;
+}
+
+.land {
+  fill: #222;
+}
+
+.boundary {
+  fill: none;
+  stroke: #fff;
+  stroke-width: .5px;
+}
+
+.route {
+  stroke-width: 1px;
+    stroke: red;
+  fill: none;
+}
+
+.route2 {
+  stroke-width: 1px;
+    stroke: blue;
+  fill: none;
+}
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script>
+
+d3.selection.prototype.moveToFront = function() {
+  return this.each(function(){
+    this.parentNode.appendChild(this);
+  });
+};
+
+var width = 960,
+    height = 500;
+
+var projection = d3.geo.mercator()
+    .center([0, 15])
+    .scale(128)
+    .translate([width / 2, height / 2])
+    .precision(.1);
+
+
+
+var path = d3.geo.path()
+    .projection(projection);
+
+var graticule = d3.geo.graticule();
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+svg.append("defs").append("path")
+    .datum({type: "Sphere"})
+    .attr("id", "sphere")
+    .attr("d", path);
+
+svg.append("use")
+    .attr("class", "stroke")
+    .attr("xlink:href", "#sphere");
+
+svg.append("use")
+    .attr("class", "fill")
+    .attr("xlink:href", "#sphere");
+
+svg.append("path")
+    .datum(graticule)
+    .attr("class", "graticule")
+    .attr("d", path);
+
+d3.json("/map_jsons/world-110m.json", function(error, world) {
+  d3.tsv("/data/world-country-names.tsv",function(error, names){
+
+  var globe = {type: "Sphere"},
+      land = topojson.feature(world, world.objects.land),
+      countries = topojson.feature(world, world.objects.countries).features,
+      borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }),
+      i = -1,
+      n = countries.length;
+
+  countries = countries.filter(function(d) {
+    return names.some(function(n) {
+      if (d.id == n.id) return d.name = n.name;
+    });
+  }).sort(function(a, b) {
+    return a.name.localeCompare(b.name);
+  });
+    
+
+        var colorScale = d3.scale.ordinal()
+                           .domain([1,2,3,4])
+          //                 .range(["#7f7f7f","#17becf","#e377c2"])
+          .range(["white"," #61CB07","#ea2f91","#f08e29"])
+
+
+    d3.csv("/data/brads_countries.csv",function(error, destinations){
+    
+
+    //get the colors from the data
+     countries.forEach(function(d){ 
+      
+       var result = $.grep(destinations, function(e){ return e.Country == d.name; });
+       if(result.length > 0 ) {
+       
+          d["color"] = result[0].Trip
+       } else {
+          d["color"] = -1
+       }
+    });
+
+    //set up the color scale for the points which will use the trip variable from below
+
+          
+
+        // add in the country elements and give them a name as well as the color from the lookup
+          countryPlots = svg.append("g")
+             .attr("class","countryList")
+              .selectAll("g")
+             .data(countries)
+             .enter()
+             .insert("path",".graticule")
+             .attr("class","country")
+             .attr("d",path)
+             .attr("countryName",function(d) { return d.name})
+             .attr("fill","grey");
+
+  }) ;          
+
+   d3.tsv("/data/brad_real_friend_data.tsv",function(error,data) {
+      
+
+
+      var friends_points = svg.append("g")
+                  .attr("class","friends_points")
+                  .selectAll("g")
+                  .data(data)
+                  .enter()         
+                  .append("g")
+                  .attr("transform", function(d) { return "translate(" + projection([d.lng,d.lat]) + ")"; })
+
+                  
+                  ;
+         friends_points.append("circle")
+                .attr("r",1)
+                .style("fill",function(d) {console.log(d.season);return colorScale(d.season)})
+                .text(function(d) { return d.friend_first_name + " " + d.friend_last_name + "\n" + "airbnb.com/users/show/" + d.user_id  })
+            
+
+ 
+
+   });
+
+   d3.tsv("/data/brad_real_data.tsv",function(error,data) {
+      personal_points = svg.append("g")
+                  .attr("class","personal_points")
+                  .selectAll("g")
+                  .data(data)
+                  .enter()         
+                  .append("g")
+                  .attr("transform", function(d) { return "translate(" + projection([d.lng,d.lat]) + ")"; })
+                  .append("circle")
+                  .attr("r",1)
+                  .style("fill",function(d) {return colorScale(d.season)});
+
+   });
+
+
+   d3.tsv("/data/brad_wishlist_data.tsv",function(error,data) {
+      personal_points = svg.append("g")
+                  .attr("class","personal_wishlists")
+                  .selectAll("g")
+                  .data(data)
+                  .enter()         
+                  .append("g")
+                  .attr("transform", function(d) { return "translate(" + projection([d.lng,d.lat]) + ")"; })
+                  .append("circle")
+                  .attr("r",0)
+                  .style("fill",function(d) {return "green"});
+   });
+
+
+
+   d3.tsv("/data/brad_friend_wishlist_data.tsv",function(error,data) {
+      personal_points = svg.append("g")
+                  .attr("class","friends_wishlists")
+                  .selectAll("g")
+                  .data(data)
+                  .enter()         
+                  .append("g")
+                  .attr("transform", function(d) { return "translate(" + projection([d.lng,d.lat]) + ")"; })
+                  .append("circle")
+                  .attr("r",0)
+                  .style("fill",function(d) {return "yellow"});
+   });
+
+
+
+
+
+
+
+// add in some nice border lines
+  svg.insert("path", ".graticule")
+   .datum(borders)
+   .attr("class", "boundary")
+   .attr("d", path);
+
+
+
+     
+     
+
+
+  });
+
+});
+
+
+
+d3.select(self.frameElement).style("height", height + "px");
+
+</script>

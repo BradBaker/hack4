@@ -1,0 +1,8 @@
+user_id	first_name	last_name	is_friend	friend_id	friend_first_name	friend_last_name	friend_country	friend_market	reservation_id	book_date	hosting_id	country	city	lat	lng	room_type	number_of_guests	nights	start_date	end_date
+4050438	Brad	Cook	0	4050438	Brad	Cook	US	San Francisco	9450079	2013-06-25	76034	DE	Berlin	52.527706	13.393373	Entire home/apt	2	6	2013-07-08	2013-07-14
+4050438	Brad	Cook	0	4050438	Brad	Cook	US	San Francisco	9448056	2013-06-25	566310	ES	Barcelona	41.391815	2.172753	Private room	1	7	2013-07-14	2013-07-21
+4050438	Brad	Cook	0	4050438	Brad	Cook	US	San Francisco	5425343	2012-12-28	98907	TR	Istanbul	41.016567	28.952002	Private room	1	6	2013-01-12	2013-01-18
+4050438	Brad	Cook	0	4050438	Brad	Cook	US	San Francisco	11277109	2013-08-12	1313932	US	South Lake Tahoe	38.940956	-119.96796	Entire home/apt	4	2	2013-08-31	2013-09-02
+4050438	Brad	Cook	0	4050438	Brad	Cook	US	San Francisco	12269380	2013-09-08	1260528	US	Portland	45.54283	-122.62547	Entire home/apt	4	1	2013-09-15	2013-09-16
+4050438	Brad	Cook	0	4050438	Brad	Cook	US	San Francisco	14236328	2013-11-05	1593245	US	Calistoga	38.59426	-122.591156	Entire home/apt	3	1	2013-11-28	2013-11-29
+4050438	Brad	Cook	0	4050438	Brad	Cook	US	San Francisco	6201253	2013-02-15	642494	DO	Cabarete	19.751549	-70.41374	Entire home/apt	4	5	2013-04-13	2013-04-18
